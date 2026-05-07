@@ -49,7 +49,7 @@ function stripBraces(seg: string): string {
 export function pathToPayloadName(path: string): string {
   const segments = path.split('/').filter(Boolean);
   const parts = segments.map((seg) => toPascalCase(singularizeSegment(stripBraces(seg))));
-  return parts.join('_') + '_Payload';
+  return parts.join('') + 'Payload';
 }
 
 /**
