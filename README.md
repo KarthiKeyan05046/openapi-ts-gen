@@ -195,7 +195,7 @@ Rules applied in order:
 ## Local development
 
 ```bash
-git clone https://github.com/your-username/openapi-ts-gen.git
+git clone https://github.com/KarthiKeyan05046/openapi-ts-gen.git
 cd openapi-ts-gen
 npm install
 npm run build
