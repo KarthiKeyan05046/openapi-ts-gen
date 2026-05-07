@@ -36,22 +36,28 @@ function singularizeSegment(segment: string): string {
   return result;
 }
 
+// Strip {param} braces — {role_id} → role_id
+function stripBraces(seg: string): string {
+  return seg.replace(/^\{(.+)\}$/, '$1');
+}
+
 /**
  * Converts an OpenAPI path string to a payload type name.
- * /post/genders/  →  Post_Gender_Payload
- * /get/work-plans/list/ →  Get_Work_Plan_List_Payload
+ * /post/genders/            →  Post_Gender_Payload
+ * /roles/{role_id}/permissions  →  Roles_RoleId_Permission_Payload
  */
 export function pathToPayloadName(path: string): string {
   const segments = path.split('/').filter(Boolean);
-  const parts = segments.map((seg) => toPascalCase(singularizeSegment(seg)));
+  const parts = segments.map((seg) => toPascalCase(singularizeSegment(stripBraces(seg))));
   return parts.join('_') + '_Payload';
 }
 
 /**
  * Converts an OpenAPI path string to an enum key (no _Payload suffix).
- * /post/genders/ → PostGenders
+ * /post/genders/            → PostGenders
+ * /roles/{role_id}/permissions  → RolesRoleIdPermissions
  */
 export function pathToEnumKey(path: string): string {
   const segments = path.split('/').filter(Boolean);
-  return segments.map((seg) => toPascalCase(seg)).join('');
+  return segments.map((seg) => toPascalCase(stripBraces(seg))).join('');
 }

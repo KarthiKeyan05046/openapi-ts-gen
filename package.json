@@ -6,8 +6,17 @@
   "bin": {
     "openapi-ts-gen": "./dist/index.js"
   },
+  "files": [
+    "dist/",
+    "README.md",
+    "banner.svg"
+  ],
+  "engines": {
+    "node": ">=18.0.0"
+  },
   "scripts": {
     "build": "tsc",
+    "prepublishOnly": "npm run build",
     "dev": "tsx src/index.ts",
     "start": "node dist/index.js"
   },
