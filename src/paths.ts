@@ -12,7 +12,7 @@ interface PathItem {
   };
 }
 
-interface OpenApiSchema {
+export interface OpenApiSchema {
   paths?: Record<string, PathItem>;
 }
 

@@ -29,7 +29,8 @@ Point it at a local JSON/YAML file or a live API URL and it produces two ready-t
 ## Features
 
 - Supports **OpenAPI 3.0 and 3.1** schemas
-- Accepts a **local file path** (JSON or YAML) or a **remote URL**
+- Accepts **any OpenAPI specification format** — JSON or YAML, local file or remote URL
+- Auto-detects format from file extension or HTTP `Content-Type` header, with JSON → YAML fallback
 - Singularizes plural path segments automatically — `/post/genders/` → `Post_Gender_Payload`
 - Generates a typed **`ApiRoute` enum** — no more hardcoded path strings
 - Generates **`*_Payload` type aliases** wired directly to `paths[...]['requestBody']`
@@ -65,6 +66,15 @@ openapi-ts-gen — OpenAPI → TypeScript generator
 ? OpenAPI schema source (local file path or URL): https://api.example.com/openapi.json
 ? Output directory: ./src/api
 ```
+
+**Accepted schema sources:**
+
+| Format | Example |
+|---|---|
+| Remote JSON URL | `https://api.example.com/openapi.json` |
+| Remote YAML URL | `https://api.example.com/openapi.yaml` |
+| Local JSON file | `./specs/api.json` |
+| Local YAML file | `./specs/api.yaml` or `./specs/api.yml` |
 
 That's it. Two files are written to your output directory.
 

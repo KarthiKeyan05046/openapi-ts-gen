@@ -13,12 +13,14 @@
   },
   "dependencies": {
     "@inquirer/prompts": "^7.5.2",
+    "js-yaml": "^4.1.1",
     "openapi-typescript": "^7.6.1",
     "ora": "^8.2.0",
     "pluralize": "^8.0.0",
     "typescript": "^5.8.3"
   },
   "devDependencies": {
+    "@types/js-yaml": "^4.0.9",
     "@types/node": "^22.15.3",
     "@types/pluralize": "^0.0.33",
     "tsx": "^4.19.4"

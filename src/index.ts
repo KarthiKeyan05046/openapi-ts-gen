@@ -2,24 +2,47 @@
 import fs from 'fs';
 import path from 'path';
 import ora from 'ora';
+import yaml from 'js-yaml';
 import { askUser } from './prompt.js';
 import { generateTypes } from './generator.js';
-import { extractPathEnum, extractPayloads } from './paths.js';
+import { extractPathEnum, extractPayloads, type OpenApiSchema } from './paths.js';
 
-async function readSchema(source: string): Promise<string> {
+async function readSchema(source: string): Promise<{ raw: string; contentType: string }> {
   if (source.startsWith('http://') || source.startsWith('https://')) {
     const response = await fetch(source);
     if (!response.ok) {
       throw new Error(`Failed to fetch schema: ${response.status} ${response.statusText}`);
     }
-    return response.text();
+    const contentType = response.headers.get('content-type') ?? '';
+    const raw = await response.text();
+    return { raw, contentType };
   }
 
   const resolved = path.resolve(source);
   if (!fs.existsSync(resolved)) {
     throw new Error(`File not found: ${resolved}`);
   }
-  return fs.readFileSync(resolved, 'utf-8');
+  const raw = fs.readFileSync(resolved, 'utf-8');
+  const ext = path.extname(resolved).toLowerCase();
+  const contentType = ext === '.yaml' || ext === '.yml' ? 'application/yaml' : 'application/json';
+  return { raw, contentType };
+}
+
+function parseSchema(raw: string, contentType: string): unknown {
+  const isYaml =
+    contentType.includes('yaml') ||
+    contentType.includes('text/plain');
+
+  if (isYaml) {
+    return yaml.load(raw);
+  }
+
+  // Try JSON first, fall back to YAML (some servers return YAML with wrong content-type)
+  try {
+    return JSON.parse(raw);
+  } catch {
+    return yaml.load(raw);
+  }
 }
 
 async function main() {
@@ -32,9 +55,10 @@ async function main() {
 
   const spinner = ora('Reading schema…').start();
 
-  let rawJson: string;
+  let raw: string;
+  let contentType: string;
   try {
-    rawJson = await readSchema(source);
+    ({ raw, contentType } = await readSchema(source));
     spinner.succeed('Schema loaded');
   } catch (err) {
     spinner.fail(`Failed to read schema: ${(err as Error).message}`);
@@ -55,7 +79,7 @@ async function main() {
   let enumStr: string;
   let payloadStr: string;
   try {
-    const schema = JSON.parse(rawJson);
+    const schema = parseSchema(raw, contentType) as OpenApiSchema;
     enumStr = extractPathEnum(schema);
     payloadStr = extractPayloads(schema);
     spinner.succeed('Route enums & payload types extracted');
