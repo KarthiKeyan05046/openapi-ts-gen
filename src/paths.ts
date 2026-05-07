@@ -25,11 +25,32 @@ export function extractPathEnum(schema: OpenApiSchema): string {
     return `  ${key} = '${p}',`;
   });
 
+  const buildRouteHelper = [
+    '// ── Route Builder ────────────────────────────────────────────────────────────',
+    '/**',
+    ' * Replace path parameters in a route template with actual values.',
+    ' * @example',
+    " * buildRoute(ApiRoute.RolesRoleIdButtonsButtonId, { role_id: 42, button_id: 7 })",
+    " * // → '/roles/42/buttons/7'",
+    ' */',
+    'export function buildRoute(',
+    '  route: ApiRoute,',
+    '  params: Record<string, string | number>,',
+    '): string {',
+    '  return Object.entries(params).reduce(',
+    '    (url, [key, val]) => url.replace(`{${key}}`, String(val)),',
+    '    route as string,',
+    '  );',
+    '}',
+  ].join('\n');
+
   return [
     '// ── API Route Enum ───────────────────────────────────────────────────────────',
     'export enum ApiRoute {',
     ...entries,
     '}',
+    '',
+    buildRouteHelper,
   ].join('\n');
 }
 
