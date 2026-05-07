@@ -45,10 +45,10 @@ Point it at a local JSON/YAML file or a live API URL and it produces two ready-t
 
 ```bash
 # Run without installing (recommended)
-npx openapi-ts-gen
+npx @karthikeyanduraisamy1999/openapi-ts-gen
 
 # Or install globally
-npm install -g openapi-ts-gen
+npm install -g @karthikeyanduraisamy1999/openapi-ts-gen
 ```
 
 ---
