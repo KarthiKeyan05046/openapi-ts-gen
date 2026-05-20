@@ -5,7 +5,7 @@ import ora from 'ora';
 import yaml from 'js-yaml';
 import { askUser } from './prompt.js';
 import { generateTypes } from './generator.js';
-import { extractPathEnum, extractPayloads, type OpenApiSchema } from './paths.js';
+import { extractPathEnum, extractHttpMethodEnum, extractPayloads, type OpenApiSchema } from './paths.js';
 
 async function readSchema(source: string): Promise<{ raw: string; contentType: string }> {
   if (source.startsWith('http://') || source.startsWith('https://')) {
@@ -77,10 +77,12 @@ async function main() {
 
   spinner.start('Extracting route enums & payload types…');
   let enumStr: string;
+  let methodStr: string;
   let payloadStr: string;
   try {
     const schema = parseSchema(raw, contentType) as OpenApiSchema;
     enumStr = extractPathEnum(schema);
+    methodStr = extractHttpMethodEnum(schema);
     payloadStr = extractPayloads(schema);
     spinner.succeed('Route enums & payload types extracted');
   } catch (err) {
@@ -105,6 +107,7 @@ async function main() {
     '',
   ];
   if (enumStr) apiSections.push(enumStr, '');
+  if (methodStr) apiSections.push(methodStr, '');
   if (payloadStr) apiSections.push(payloadStr, '');
 
   const apiOutput = apiSections.join('\n');

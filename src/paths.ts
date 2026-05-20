@@ -54,10 +54,36 @@ export function extractPathEnum(schema: OpenApiSchema): string {
   ].join('\n');
 }
 
+export function extractHttpMethodEnum(schema: OpenApiSchema): string {
+  const paths = schema.paths ?? {};
+  const usedMethods = new Set<string>();
+
+  for (const pathItem of Object.values(paths)) {
+    for (const method of HTTP_METHODS) {
+      if (pathItem[method]) usedMethods.add(method);
+    }
+  }
+
+  if (usedMethods.size === 0) return '';
+
+  const entries = [...usedMethods].map((m) => {
+    const key = m.charAt(0).toUpperCase() + m.slice(1);
+    return `  ${key} = '${m}',`;
+  });
+
+  return [
+    '// ── HTTP Method Enum ─────────────────────────────────────────────────────────',
+    'export enum HttpMethod {',
+    ...entries,
+    '}',
+  ].join('\n');
+}
+
 export function extractPayloads(schema: OpenApiSchema): string {
   const paths = schema.paths ?? {};
   const lines: string[] = [
     '// ── Request Payload Types ────────────────────────────────────────────────────',
+    "type Payload<\n  R extends keyof paths,\n  M extends keyof paths[R],\n  C extends string = 'application/json',\n> = paths[R][M] extends { requestBody: { content: Record<C, infer T> } } ? T : never;",
   ];
 
   let found = false;
@@ -77,12 +103,12 @@ export function extractPayloads(schema: OpenApiSchema): string {
 
       if (hasJson) {
         lines.push(
-          `export type ${payloadName} =\n  paths[ApiRoute.${enumKey}]['${method}']['requestBody']['content']['application/json'];`,
+          `export type ${payloadName} =\n  Payload<ApiRoute.${enumKey}, '${method}'>;`,
         );
       } else if (contentTypes.length > 0) {
         const firstType = contentTypes[0];
         lines.push(
-          `export type ${payloadName} =\n  paths[ApiRoute.${enumKey}]['${method}']['requestBody']['content']['${firstType}'];`,
+          `export type ${payloadName} =\n  Payload<ApiRoute.${enumKey}, '${method}', '${firstType}'>;`,
         );
       } else {
         lines.push(
