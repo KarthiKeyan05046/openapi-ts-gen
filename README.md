@@ -3,11 +3,11 @@
 </p>
 
 <p align="center">
-  <b>A CLI tool that converts OpenAPI 3.0 / 3.1 schemas into TypeScript types, route enums, and request payload types.</b>
+  <b>A CLI tool that converts OpenAPI schemas (all versions) into TypeScript types, route enums, and request payload types.</b>
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/OpenAPI-3.0%20%7C%203.1-blue?style=flat-square" alt="OpenAPI"/>
+  <img src="https://img.shields.io/badge/OpenAPI-2.0%20%7C%203.0%20%7C%203.1-blue?style=flat-square" alt="OpenAPI"/>
   <img src="https://img.shields.io/badge/TypeScript-5.x-3178c6?style=flat-square&logo=typescript&logoColor=white" alt="TypeScript"/>
   <img src="https://img.shields.io/badge/module-ESM-brightgreen?style=flat-square" alt="ESM"/>
   <img src="https://img.shields.io/badge/license-ISC-lightgrey?style=flat-square" alt="License"/>
@@ -28,7 +28,7 @@ Point it at a local JSON/YAML file or a live API URL and it produces two ready-t
 
 ## Features
 
-- Supports **OpenAPI 3.0 and 3.1** schemas
+- Supports **all OpenAPI versions** — Swagger 2.0, OpenAPI 3.0, and 3.1
 - Accepts **any OpenAPI specification format** — JSON or YAML, local file or remote URL
 - Auto-detects format from file extension or HTTP `Content-Type` header, with JSON → YAML fallback
 - Singularizes plural path segments automatically — `/post/genders/` → `Post_Gender_Payload`
@@ -45,10 +45,10 @@ Point it at a local JSON/YAML file or a live API URL and it produces two ready-t
 
 ```bash
 # Run without installing (recommended)
-npx @karthikeyanduraisamy1999/openapi-ts-gen
+npx typeoapi
 
 # Or install globally
-npm install -g @karthikeyanduraisamy1999/openapi-ts-gen
+npm install -g typeoapi
 ```
 
 ---
@@ -56,13 +56,13 @@ npm install -g @karthikeyanduraisamy1999/openapi-ts-gen
 ## Usage
 
 ```bash
-npx openapi-ts-gen
+npx typeoapi
 ```
 
 The CLI will ask two questions:
 
 ```
-openapi-ts-gen — OpenAPI → TypeScript generator
+typeoapi — OpenAPI → TypeScript generator
 
 ? OpenAPI schema source (local file path or URL): https://api.example.com/openapi.json
 ? Output directory: ./src/api

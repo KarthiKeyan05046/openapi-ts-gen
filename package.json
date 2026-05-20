@@ -1,10 +1,10 @@
 {
-  "name": "@karthikeyanduraisamy1999/openapi-ts-gen",
-  "version": "1.0.2",
-  "description": "CLI tool to convert OpenAPI 3.0/3.1 schemas to TypeScript types with path enums and payload types",
+  "name": "typeoapi",
+  "version": "1.0.3",
+  "description": "CLI tool to convert OpenAPI schemas (Swagger 2.0, 3.0, 3.1) to TypeScript types with path enums and payload types",
   "type": "module",
   "bin": {
-    "openapi-ts-gen": "./dist/index.js"
+    "typeoapi": "./dist/index.js"
   },
   "files": [
     "dist/",
