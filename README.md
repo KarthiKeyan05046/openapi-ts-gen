@@ -31,7 +31,7 @@ Point it at a local JSON/YAML file or a live API URL and it produces two ready-t
 - Supports **all OpenAPI versions** — Swagger 2.0, OpenAPI 3.0, and 3.1
 - Accepts **any OpenAPI specification format** — JSON or YAML, local file or remote URL
 - Auto-detects format from file extension or HTTP `Content-Type` header, with JSON → YAML fallback
-- Singularizes plural path segments automatically — `/post/genders/` → `Post_Gender_Payload`
+- Singularizes plural path segments automatically — `/post/genders/` → `PostGenderPayload`
 - Generates a typed **`ApiRoute` enum** — no more hardcoded path strings
 - Generates a **`buildRoute()`** helper to safely substitute path parameters at runtime
 - Generates **`*_Payload` type aliases** wired directly to `paths[...]['requestBody']`

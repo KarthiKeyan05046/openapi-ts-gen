@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 import fs from 'fs';
 import path from 'path';
+import { fileURLToPath } from 'url';
 import ora from 'ora';
 import yaml from 'js-yaml';
 import { askUser } from './prompt.js';
@@ -46,7 +47,15 @@ function parseSchema(raw: string, contentType: string): unknown {
 }
 
 async function main() {
-  console.log('\nopenapi-ts-gen — OpenAPI → TypeScript generator\n');
+  const __dirname = path.dirname(fileURLToPath(import.meta.url));
+  const { version } = JSON.parse(fs.readFileSync(path.join(__dirname, '../package.json'), 'utf-8')) as { version: string };
+  const title = `typeoapi v${version}`;
+  const subtitle = 'OpenAPI → TypeScript generator';
+  const inner = `  ${title}  ·  ${subtitle}  `;
+  const border = '═'.repeat(inner.length);
+  console.log(`\n\x1b[36m╔${border}╗`);
+  console.log(`║  \x1b[1m\x1b[97m${title}\x1b[0m\x1b[36m  ·  ${subtitle}  ║`);
+  console.log(`╚${border}╝\x1b[0m\n`);
 
   const { source, outputDir } = await askUser();
 
