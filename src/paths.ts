@@ -79,44 +79,58 @@ export function extractHttpMethodEnum(schema: OpenApiSchema): string {
   ].join('\n');
 }
 
+interface PayloadEntry {
+  pathStr: string;
+  method: string;
+  baseName: string;
+  contentTypes: string[];
+}
+
 export function extractPayloads(schema: OpenApiSchema): string {
   const paths = schema.paths ?? {};
+
+  // First pass: collect all entries with their base names
+  const entries: PayloadEntry[] = [];
+  for (const [pathStr, pathItem] of Object.entries(paths)) {
+    for (const method of HTTP_METHODS) {
+      const operation = pathItem[method as HttpMethod];
+      if (!operation?.requestBody) continue;
+      entries.push({
+        pathStr,
+        method,
+        baseName: pathToPayloadName(pathStr),
+        contentTypes: Object.keys(operation.requestBody.content ?? {}),
+      });
+    }
+  }
+
+  if (entries.length === 0) return '';
+
+  // Detect base names that collide across any entries
+  const nameCount = new Map<string, number>();
+  for (const e of entries) nameCount.set(e.baseName, (nameCount.get(e.baseName) ?? 0) + 1);
+
   const lines: string[] = [
     '// ── Request Payload Types ────────────────────────────────────────────────────',
     "type Payload<\n  R extends keyof paths,\n  M extends keyof paths[R],\n  C extends string = 'application/json',\n> = paths[R][M] extends { requestBody: { content: Record<C, infer T> } } ? T : never;",
     '',
   ];
 
-  let found = false;
+  for (const { pathStr, method, baseName, contentTypes } of entries) {
+    const isColliding = (nameCount.get(baseName) ?? 0) > 1;
+    const payloadName = isColliding ? pathToPayloadName(pathStr, method) : baseName;
+    const enumKey = pathToEnumKey(pathStr);
+    const methodKey = method.charAt(0).toUpperCase() + method.slice(1);
+    const hasJson = contentTypes.includes('application/json');
 
-  for (const [pathStr, pathItem] of Object.entries(paths)) {
-    const methodsWithBody = HTTP_METHODS.filter((m) => !!pathItem[m as HttpMethod]?.requestBody);
-    const needsMethodInName = methodsWithBody.length > 1;
-
-    for (const method of HTTP_METHODS) {
-      const operation = pathItem[method as HttpMethod];
-      if (!operation?.requestBody) continue;
-
-      found = true;
-      const payloadName = pathToPayloadName(pathStr, needsMethodInName ? method : undefined);
-      const enumKey = pathToEnumKey(pathStr);
-      const methodKey = method.charAt(0).toUpperCase() + method.slice(1);
-
-      // Resolve to application/json content type if present, fallback to generic requestBody
-      const contentTypes = Object.keys(operation.requestBody.content ?? {});
-      const hasJson = contentTypes.includes('application/json');
-
-      if (hasJson) {
-        lines.push(`export type ${payloadName} = Payload<ApiRoute.${enumKey}, HttpMethod.${methodKey}>;`);
-      } else if (contentTypes.length > 0) {
-        const firstType = contentTypes[0];
-        lines.push(`export type ${payloadName} = Payload<ApiRoute.${enumKey}, HttpMethod.${methodKey}, '${firstType}'>;`);
-      } else {
-        lines.push(`export type ${payloadName} = paths[ApiRoute.${enumKey}][HttpMethod.${methodKey}]['requestBody'];`);
-      }
+    if (hasJson) {
+      lines.push(`export type ${payloadName} = Payload<ApiRoute.${enumKey}, HttpMethod.${methodKey}>;`);
+    } else if (contentTypes.length > 0) {
+      lines.push(`export type ${payloadName} = Payload<ApiRoute.${enumKey}, HttpMethod.${methodKey}, '${contentTypes[0]}'>;`);
+    } else {
+      lines.push(`export type ${payloadName} = paths[ApiRoute.${enumKey}][HttpMethod.${methodKey}]['requestBody'];`);
     }
   }
 
-  if (!found) return '';
   return lines.join('\n');
 }

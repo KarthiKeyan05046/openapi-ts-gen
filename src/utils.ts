@@ -60,5 +60,5 @@ export function pathToPayloadName(path: string, method?: string): string {
  */
 export function pathToEnumKey(path: string): string {
   const segments = path.split('/').filter(Boolean);
-  return segments.map((seg) => toPascalCase(stripBraces(seg))).join('');
+  return segments.map((seg) => toPascalCase(stripBraces(seg))).join('') || 'Root';
 }
