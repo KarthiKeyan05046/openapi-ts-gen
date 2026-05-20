@@ -69,6 +69,7 @@ export function extractPayloads(schema: OpenApiSchema): string {
 
       found = true;
       const payloadName = pathToPayloadName(pathStr);
+      const enumKey = pathToEnumKey(pathStr);
 
       // Resolve to application/json content type if present, fallback to generic requestBody
       const contentTypes = Object.keys(operation.requestBody.content ?? {});
@@ -76,16 +77,16 @@ export function extractPayloads(schema: OpenApiSchema): string {
 
       if (hasJson) {
         lines.push(
-          `export type ${payloadName} =\n  paths['${pathStr}']['${method}']['requestBody']['content']['application/json'];`,
+          `export type ${payloadName} =\n  paths[ApiRoute.${enumKey}]['${method}']['requestBody']['content']['application/json'];`,
         );
       } else if (contentTypes.length > 0) {
         const firstType = contentTypes[0];
         lines.push(
-          `export type ${payloadName} =\n  paths['${pathStr}']['${method}']['requestBody']['content']['${firstType}'];`,
+          `export type ${payloadName} =\n  paths[ApiRoute.${enumKey}]['${method}']['requestBody']['content']['${firstType}'];`,
         );
       } else {
         lines.push(
-          `export type ${payloadName} =\n  paths['${pathStr}']['${method}']['requestBody'];`,
+          `export type ${payloadName} =\n  paths[ApiRoute.${enumKey}]['${method}']['requestBody'];`,
         );
       }
     }
