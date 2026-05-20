@@ -90,25 +90,29 @@ export function extractPayloads(schema: OpenApiSchema): string {
   let found = false;
 
   for (const [pathStr, pathItem] of Object.entries(paths)) {
+    const methodsWithBody = HTTP_METHODS.filter((m) => !!pathItem[m as HttpMethod]?.requestBody);
+    const needsMethodInName = methodsWithBody.length > 1;
+
     for (const method of HTTP_METHODS) {
       const operation = pathItem[method as HttpMethod];
       if (!operation?.requestBody) continue;
 
       found = true;
-      const payloadName = pathToPayloadName(pathStr);
+      const payloadName = pathToPayloadName(pathStr, needsMethodInName ? method : undefined);
       const enumKey = pathToEnumKey(pathStr);
+      const methodKey = method.charAt(0).toUpperCase() + method.slice(1);
 
       // Resolve to application/json content type if present, fallback to generic requestBody
       const contentTypes = Object.keys(operation.requestBody.content ?? {});
       const hasJson = contentTypes.includes('application/json');
 
       if (hasJson) {
-        lines.push(`export type ${payloadName} = Payload<ApiRoute.${enumKey}, '${method}'>;`);
+        lines.push(`export type ${payloadName} = Payload<ApiRoute.${enumKey}, HttpMethod.${methodKey}>;`);
       } else if (contentTypes.length > 0) {
         const firstType = contentTypes[0];
-        lines.push(`export type ${payloadName} = Payload<ApiRoute.${enumKey}, '${method}', '${firstType}'>;`);
+        lines.push(`export type ${payloadName} = Payload<ApiRoute.${enumKey}, HttpMethod.${methodKey}, '${firstType}'>;`);
       } else {
-        lines.push(`export type ${payloadName} = paths[ApiRoute.${enumKey}]['${method}']['requestBody'];`);
+        lines.push(`export type ${payloadName} = paths[ApiRoute.${enumKey}][HttpMethod.${methodKey}]['requestBody'];`);
       }
     }
   }

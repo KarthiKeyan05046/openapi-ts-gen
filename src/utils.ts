@@ -46,10 +46,11 @@ function stripBraces(seg: string): string {
  * /post/genders/            →  Post_Gender_Payload
  * /roles/{role_id}/permissions  →  Roles_RoleId_Permission_Payload
  */
-export function pathToPayloadName(path: string): string {
+export function pathToPayloadName(path: string, method?: string): string {
   const segments = path.split('/').filter(Boolean);
   const parts = segments.map((seg) => toPascalCase(singularizeSegment(stripBraces(seg))));
-  return parts.join('') + 'Payload';
+  const methodSuffix = method ? method.charAt(0).toUpperCase() + method.slice(1) : '';
+  return parts.join('') + methodSuffix + 'Payload';
 }
 
 /**
