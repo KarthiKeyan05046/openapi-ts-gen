@@ -1,6 +1,6 @@
 {
   "name": "typeoapi",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "CLI tool to convert OpenAPI schemas (Swagger 2.0, 3.0, 3.1) to TypeScript types with path enums and payload types",
   "type": "module",
   "bin": {
