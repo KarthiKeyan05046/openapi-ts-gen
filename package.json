@@ -1,6 +1,6 @@
 {
   "name": "@karthikeyanduraisamy1999/openapi-ts-gen",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "CLI tool to convert OpenAPI 3.0/3.1 schemas to TypeScript types with path enums and payload types",
   "type": "module",
   "bin": {
