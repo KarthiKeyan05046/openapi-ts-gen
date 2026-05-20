@@ -4,7 +4,7 @@ import path from 'path';
 import ora from 'ora';
 import yaml from 'js-yaml';
 import { askUser } from './prompt.js';
-import { generateTypes } from './generator.js';
+import { generateTypes, normalizeSchema } from './generator.js';
 import { extractPathEnum, extractHttpMethodEnum, extractPayloads, type OpenApiSchema } from './paths.js';
 
 async function readSchema(source: string): Promise<{ raw: string; contentType: string }> {
@@ -67,8 +67,12 @@ async function main() {
 
   spinner.start('Generating TypeScript types…');
   let typeStr: string;
+  let schema: OpenApiSchema;
   try {
-    typeStr = await generateTypes(source);
+    const parsed = parseSchema(raw, contentType) as Record<string, unknown>;
+    const normalized = await normalizeSchema(parsed);
+    typeStr = await generateTypes(normalized);
+    schema = normalized as OpenApiSchema;
     spinner.succeed('TypeScript types generated');
   } catch (err) {
     spinner.fail(`Type generation failed: ${(err as Error).message}`);
@@ -80,7 +84,6 @@ async function main() {
   let methodStr: string;
   let payloadStr: string;
   try {
-    const schema = parseSchema(raw, contentType) as OpenApiSchema;
     enumStr = extractPathEnum(schema);
     methodStr = extractHttpMethodEnum(schema);
     payloadStr = extractPayloads(schema);
